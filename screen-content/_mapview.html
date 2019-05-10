@@ -1,0 +1,99 @@
+<h1>Tarush Vig</h1>
+<div class="content" id="map">
+    <!--The div element for the map -->
+    <div id="map"></div>
+    <script>
+        var markers = [];
+        var aptData = "https://data.cityofchicago.org/resource/9rg7-mz9y.json"; 
+        
+        var myLocation = {};
+        
+        function initMap() 
+        {
+          // The location of Chicago
+          var chicago = {lat: 41.8781, lng: -87.6298};
+          // The map, centered at Uluru
+          var map = new google.maps.Map(
+          document.getElementById('map'), {zoom: 11, center: chicago});
+          console.log("MY LOCATION: " + myLocation.lat + " " + myLocation.lng);
+          var marker = new google.maps.Marker({position: myLocation, map: map, title: 'Hello World!'});
+//           var info_window_message = "I am here: " + String(myLocation.lat) + ", " + String(myLocation.lng);
+//           var infowindow = new google.maps.InfoWindow({
+//               content: info_window_message
+//           });
+
+//           marker.addListener('click', function() {
+//              infowindow.open(map, marker);
+//           });  
+          createMarkers(map);
+          setMapOnAll(map);
+        }
+        
+        // Removes the markers from the map, but keeps them in the array.
+         function clearMarkers() {
+            setMapOnAll(null);
+            markers = [];
+         }   
+         
+         // Sets the map on all markers in the array.
+         function setMapOnAll(map) {
+            for (var i = 0; i < markers.length; i++) {
+              markers[i].setMap(map);
+            }
+         }   
+            
+         function createMarkers (map) {
+             clearMarkers();
+             
+             $.get(aptData, function(response) {
+                  $.each(response, function(i,v) {
+                      
+                    var location = {lat: parseFloat(v.latitude), lng: parseFloat(v.longitude) }
+                    console.log(location);
+//                     console.log(map);
+                    var lat = location.lat;
+                    var lng = location.lng;
+                      
+                    var myLat = parseFloat(myLocation.lat);
+                    var myLng = parseFloat(myLocation.lng);
+                      
+                    var x = lat - myLat;
+                    var y = (lng - myLng)*Math.cos(myLat);
+                      
+                    var distance = Math.sqrt(x*x + y*y);
+                    
+                    var marker = new google.maps.Marker({position: location, map: map, icon: {url: "iconfinder_map-marker_299087.png"}});
+                    var info_window_message = v.district_name + ": " + distance;
+                    var infowindow = new google.maps.InfoWindow({
+                        content: info_window_message
+                   });
+
+                   marker.addListener('click', function() {
+                        infowindow.open(map, marker);
+                   });  
+                  markers.push(marker); 
+//                   console.log(markers);
+             });
+           }); 
+         }
+        
+        function success(pos) {
+          var crd = pos.coords;
+          
+          var location = {lat: crd.latitude, lng: crd.longitude};
+          console.log('Your current position is:');
+          console.log(`Latitude : ${crd.latitude}`);
+          console.log(`Longitude: ${crd.longitude}`);
+          console.log(`More or less ${crd.accuracy} meters.`);
+          
+          myLocation = location;
+          initMap();
+        }
+        
+        
+        navigator.geolocation.getCurrentPosition(success);
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMq1s3lYDV0m1qKodiJbY4wMbwXJpNo14&callback=initMap">
+    </script>
+</div>
