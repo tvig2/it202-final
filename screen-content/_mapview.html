@@ -63,7 +63,7 @@
                     var distance = Math.sqrt(x*x + y*y);
                     
                     var marker = new google.maps.Marker({position: location, map: map, icon: {url: "iconfinder_map-marker_299087.png"}});
-                    var info_window_message = v.district_name + ": " + distance;
+                    var info_window_message = v.district_name + ": " + distance.toPrecision(3) + " mi";
                     var infowindow = new google.maps.InfoWindow({
                         content: info_window_message
                    });
